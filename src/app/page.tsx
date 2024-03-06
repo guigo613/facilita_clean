@@ -1,95 +1,92 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./style.css";
+import { KeyboardEvent, useEffect, useState } from "react";
+import { Client } from "./db";
+import { Button, Form, Row, Col } from "react-bootstrap";
+import RegisterModal from "./register";
+import RouteModal from "./route_modal";
+
 
 export default function Home() {
+  const [users, setUsers] = useState<Client[]>([]);
+  const [show, setShow] = useState(false);
+  const [showR, setShowR] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/clients")
+      .then(r => r.json())
+      .then(data => setUsers(data));
+  }, []);
+  
+  let elmt = users.map(c => {
+    return (
+      <tr key={c.id}>
+        <th scope="row">{c.id}</th>
+        <td>{c.name}</td>
+        <td>{c.email}</td>
+        <td>{c.phone}</td>
+        <td>{c.coord.x}, {c.coord.y}</td>
+        <td>
+          <Button onClick={() => fetch("/api/clients", { method: "DELETE", body: JSON.stringify(c.id) }).then(r => r.json()).then(data => setUsers(data))}>Deletar</Button>  
+        </td>
+      </tr>
+    )
+  });
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <>
+      <div className="m-auto">
+        <Row>
+          <Col className="mx-auto" sm="auto">
+            <Form.Control
+              type="text"
+              placeholder="Search"
+              className=" mr-sm-2"
+              onKeyUp={filter}
             />
-          </a>
-        </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="table_row m-auto" sm="auto">
+            <table id="listClients" className="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Id</th>
+                  <th scope="col">Nome</th>
+                  <th scope="col">E-mail</th>
+                  <th scope="col">Telefone</th>
+                  <th scope="col">Coordenada</th>
+                  <th scope="col">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {elmt}
+              </tbody>
+            </table>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="ms-auto" sm="auto">
+            <Button variant="outline-success" onClick={() => setShow(true)}>Cadastrar</Button>
+          </Col>
+          <Col className="me-auto" sm="auto">
+            <Button variant="outline-primary" onClick={() => setShowR(true)}>Rota</Button>
+          </Col>
+        </Row>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <RegisterModal show={show} setShow={setShow} callback={setUsers} />
+      <RouteModal show={showR} setShow={setShowR} />
+    </>
   );
+}
+
+const filter = (e: KeyboardEvent<any>) => {
+  Array.from(document.querySelectorAll("table#listClients tbody tr")).map(t => {
+    if (Array.from(t.querySelectorAll("td")).map(td => td.innerText).some(text => text.search(e.currentTarget.value) != -1))
+        t.classList.remove("d-none")
+    else
+        t.classList.add("d-none")
+  })
 }

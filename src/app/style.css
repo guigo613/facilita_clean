@@ -1,0 +1,19 @@
+header {
+    flex: 0 0 100%;
+    text-align: center;
+}
+
+main {
+    flex: 0 0 100%;
+}
+
+.main-flex {
+    height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.table_row {
+    height: 70vh;
+    overflow: auto;
+}
