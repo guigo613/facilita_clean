@@ -3,14 +3,17 @@ import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import { Client } from "./db";
 
 export default function RouteModal({ show, setShow }: { show: boolean, setShow: (arg0: boolean) => void }) {
+    // Estado local para armazenar a lista de clientes
     const [users, setUsers] = useState<Client[]>([]);
 
+    // Efeito que é acionado quando `show` muda. Ele busca os clientes da rota quando o modal é exibido.
     useEffect(() => {
         fetch("/api/route")
             .then(r => r.json())
             .then(data => setUsers(data));
     }, [show]);
     
+    // Mapeia os clientes para elementos de tabela.
     let elmt = users.map(c => {
         return (
         <tr key={c.id}>
@@ -23,6 +26,7 @@ export default function RouteModal({ show, setShow }: { show: boolean, setShow: 
         )
     });
     
+    // Retorna o modal que exibe a lista de clientes.
     return (
         <Modal show={show} onHide={() => setShow(false)}>
             <Modal.Header closeButton>
