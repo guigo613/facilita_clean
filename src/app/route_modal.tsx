@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { Client } from "./db";
 
 export default function RouteModal({ show, setShow }: { show: boolean, setShow: (arg0: boolean) => void }) {
